@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAP Discovery Center (v6)</title>
+<link rel="icon" href="./dc_files/sap_logo.svg">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#0070f2;--bg:#f5f6f7;--surface:#fff;--border:#e4e4e4;--text:#32363a;--muted:#6a6d70}
+body{font-family:"72","72full",Inter,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.shell{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1rem;height:2.75rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.shell-ham{font-size:1.1rem;color:var(--muted);margin-right:.75rem;cursor:pointer}
+.shell-logo{display:flex;align-items:center;gap:.5rem;text-decoration:none}
+.shell-logo img{height:1.5rem}
+.shell-title{font-size:.875rem;font-weight:600;color:var(--text);margin-left:.25rem}
+/* SAP Icon font for exact DC icons */
+@font-face{font-family:"SAP-icons";src:url("./dc_files/fonts/SAP-icons.woff2") format("woff2");font-weight:normal;font-style:normal}
+.sap-icon{font-family:"SAP-icons";font-style:normal;font-weight:normal;line-height:1;speak:none}
+/* Hero layout */
+.hero{background:#00144a;position:relative;overflow:hidden;min-height:300px;display:flex;align-items:center}
+.hero-bg{position:absolute;inset:0;background:url('./dc_files/images/dcNutshellBgStars.svg') center/cover;opacity:.25;pointer-events:none;z-index:1}
+.hero-astro-bg{position:absolute;right:0;bottom:0;height:100%;width:55%;object-fit:contain;object-position:right bottom;pointer-events:none;z-index:2}
+.hero-stars1{position:absolute;top:15%;right:3%;width:80px;pointer-events:none;z-index:2;opacity:.7}
+.hero-stars2{position:absolute;top:30%;right:18%;width:130px;pointer-events:none;z-index:2;opacity:.6}
+/* KG behind astronaut, astronaut in front */
+.hero-astro{display:none}
+.hero-astro-free{position:absolute;right:0;bottom:0;height:100%;width:55%;object-fit:contain;object-position:right bottom;pointer-events:none;z-index:5}
+
+#v6kg{position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;opacity:0;transition:opacity .6s;z-index:3;cursor:default}
+.hero-c{position:absolute;top:2.5rem;left:2rem;z-index:8;display:flex;flex-direction:column;gap:1rem;pointer-events:none;max-width:420px}
+.hero-c>*{pointer-events:all}
+.hero h1{color:#fff;font-size:1.875rem;font-weight:700;letter-spacing:-.01em;text-shadow:0 1px 8px rgba(0,0,30,.6)}
+.swrap{position:relative;width:320px}
+.sinp{width:100%;padding:.5rem 2.5rem .5rem .875rem;border:1px solid rgba(255,255,255,.3);border-radius:.25rem;font-size:.875rem;font-family:inherit;background:rgba(255,255,255,.18);color:#fff;outline:none;backdrop-filter:blur(8px)}
+.sinp::placeholder{color:rgba(255,255,255,.6)}
+.sinp:focus{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.7);box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+.sicon{position:absolute;right:.625rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.7);pointer-events:none;line-height:0}
+.sdrop{display:none;position:fixed;background:rgba(0,8,50,.88);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.15);border-top:none;border-radius:0 0 .25rem .25rem;box-shadow:0 8px 24px rgba(0,0,0,.18);max-height:340px;overflow-y:auto;z-index:9999;font-family:inherit}
+.sdrop a{display:flex;align-items:center;gap:.625rem;padding:.5rem 1rem;text-decoration:none;color:rgba(220,230,255,.9);border-bottom:1px solid rgba(255,255,255,.07);font-size:.8125rem}
+.sdrop a:last-child{border-bottom:none}
+.sdrop a:hover{background:rgba(255,255,255,.1)}
+.stag{font-size:.625rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.1rem .4rem;border-radius:.1875rem;min-width:3.25rem;text-align:center;flex-shrink:0}
+.slbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ntabs{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;position:sticky;top:2.75rem;z-index:100}
+.ntabs-inner{max-width:1100px;margin:0 auto;display:flex;overflow-x:auto}
+.ntab{padding:.75rem 1rem;font-size:.8125rem;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.ntab:hover{color:var(--text)}
+.ntab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.main{max-width:1100px;margin:0 auto;padding:1.5rem 2rem 3rem}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.sec-h h2{font-size:.9375rem;font-weight:700}
+.sec-h a{font-size:.75rem;color:var(--blue);text-decoration:none}
+.egrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.875rem;margin-bottom:2rem}
+.ecard{background:#fff;border:1px solid var(--border);border-radius:.5rem;padding:1.25rem;transition:box-shadow .15s;display:flex;flex-direction:column}
+.ecard:hover{box-shadow:0 2px 14px rgba(0,0,0,.1);border-color:rgba(0,112,242,.2)}
+.eicon{width:3rem;height:3rem;border-radius:.625rem;margin-bottom:.875rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ecard h3{font-size:.875rem;font-weight:700;margin-bottom:.375rem;line-height:1.4}
+.ecard p{font-size:.75rem;color:var(--muted);line-height:1.55;margin-bottom:.875rem;flex:1}
+.ebtns{display:flex;gap:.375rem;flex-wrap:wrap;margin-top:auto}
+.ebtn{padding:.3rem .75rem;border-radius:1rem;background:var(--blue);color:#fff;font-size:.6875rem;font-weight:600;text-decoration:none;border:none;cursor:pointer;white-space:nowrap}
+.ebtn:hover{background:#005ab4}
+.ebtn.g{background:#fff;color:var(--blue);border:1px solid var(--blue)}
+.ebtn.g:hover{background:#f0f7ff}
+.wsh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.wsh h2{font-size:1rem;font-weight:700}
+.wsbtn{padding:.3rem .75rem;border:1px solid #c6c6c6;border-radius:.25rem;background:#fff;font-size:.75rem;color:var(--text);cursor:pointer;margin-left:.5rem}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.875rem}
+.wcard{background:#fff;border:1px solid var(--border);border-radius:.5rem;padding:1rem;min-height:15rem;display:flex;flex-direction:column}
+.wch{display:flex;align-items:center;gap:.5rem;margin-bottom:.875rem}
+.wch img{width:1.25rem;height:1.25rem;flex-shrink:0}
+.wch-t{font-size:.8125rem;font-weight:600;flex:1}
+.wch-c{font-size:.75rem;color:var(--muted);flex-shrink:0}
+.wi{display:flex;align-items:center;padding:.375rem 0;border-bottom:1px solid #f5f5f5;font-size:.75rem;gap:.5rem}
+.wi:last-of-type{border-bottom:none}
+.wi-l{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wi-v{color:var(--blue);font-size:.6875rem;white-space:nowrap;flex-shrink:0}
+.wft{text-align:right;margin-top:auto;padding-top:.5rem}
+.wft a{font-size:.75rem;color:var(--blue);text-decoration:none}
+@media(max-width:640px){.hero h1{font-size:1.375rem}.swrap{width:100%}.ntabs,.main{padding-left:1rem;padding-right:1rem}}
+</style>
+</head>
+<body>
+
+<header class="shell">
+  <span class="shell-ham">&#9776;</span>
+  <a class="shell-logo" href="https://discovery-center.cloud.sap" target="_blank">
+    <img src="./dc_files/sap_logo.svg" alt="SAP">
+    <span class="shell-title">Discovery Center</span>
+  </a>
+</header>
+
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <img class="hero-astro-bg" src="./dc_files/astro_bg.png" alt="">
+  <canvas id="v6kg"></canvas>
+  <img class="hero-astro-free" src="./dc_files/astro_free.png" alt="">
+  <div class="hero-c">
+    <h1>Hi Andreas, Welcome!</h1>
+    <div class="swrap" id="swrap">
+      <input id="v6inp" class="sinp" type="text" placeholder="Missions, Services, AI offerings, and more..." autocomplete="off">
+      <span class="sicon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    </div>
+  </div>
+</section>
+<div class="sdrop" id="v6drop"></div>
+
+<nav class="ntabs">
+  <div class="ntabs-inner">
+    <span class="ntab active">Explore</span>
+    <span class="ntab">My Workspace</span>
+    <span class="ntab">In a Nutshell</span>
+    <span class="ntab">Featured Content</span>
+    <span class="ntab">Events</span>
+    <span class="ntab">Customer Stories</span>
+    <span class="ntab">Related Resources</span>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="sec-h"><h2>Explore</h2><a href="https://discovery-center.cloud.sap" target="_blank">View all</a></div>
+  <div class="egrid">
+
+    <div class="ecard">
+      <div class="eicon" style="background:#eeebff;font-size:1.8rem">
+        <span class="sap-icon" style="color:#7c3aed">&#xe05b;</span>
+      </div>
+      <h3>SAP Business AI</h3>
+      <p>Find the right AI offerings to unlock the full business potential of artificial intelligence and evaluate AI units using AI Estimator.</p>
+      <div class="ebtns"><a class="ebtn" href="https://discovery-center.cloud.sap/serviceCatalog?category=ArtificialIntelligence" target="_blank">AI Catalog</a><a class="ebtn g" href="https://discovery-center.cloud.sap" target="_blank">AI Estimator</a></div>
+    </div>
+
+    <div class="ecard">
+      <div class="eicon" style="background:#e0f8f5;font-size:1.8rem">
+        <span class="sap-icon" style="color:#00b5a2">&#xe088;</span>
+      </div>
+      <h3>SAP BTP Services</h3>
+      <p>Discover SAP BTP services that help you integrate, extend and build your solution. Learn about their features, availability and pricing.</p>
+      <div class="ebtns"><a class="ebtn" href="https://discovery-center.cloud.sap/serviceCatalog" target="_blank">Service Catalog</a><a class="ebtn g" href="https://discovery-center.cloud.sap" target="_blank">Service Estimator</a></div>
+    </div>
+
+    <div class="ecard">
+      <div class="eicon" style="background:#fde8f4">
+        <img src="./dc_files/images/bdc-catalog/bdc-homepageIcon.svg" style="width:2rem;height:2rem">
+      </div>
+      <h3>SAP BDC Services <span style="background:#d93050;color:#fff;font-size:.5rem;padding:1px 5px;border-radius:2px;font-weight:700;vertical-align:middle;margin-left:4px">NEW</span></h3>
+      <p>Unlock SAP Business Data Cloud to unify enterprise data, accelerate analytics and AI, and power data-driven decisions.</p>
+      <div class="ebtns"><a class="ebtn" href="https://discovery-center.cloud.sap/serviceCatalog/sap-business-data-cloud" target="_blank">Service Catalog</a></div>
+    </div>
+
+    <div class="ecard">
+      <div class="eicon" style="background:#fff3e0">
+        <img src="./dc_files/images/missionTypeImages/general_missionsRocket.svg" style="width:2rem;height:2rem">
+      </div>
+      <h3>Missions</h3>
+      <p>Implement your use cases with step-by-step guidance and well-established support from topic experts and the SAP Community.</p>
+      <div class="ebtns"><a class="ebtn" href="https://discovery-center.cloud.sap/protected/index.html#/missions" target="_blank">Mission Catalog</a></div>
+    </div>
+
+    <div class="ecard">
+      <div class="eicon" style="background:#e8f5e9;font-size:1.8rem">
+        <span class="sap-icon" style="color:#0f7c3c">&#xe1b5;</span>
+      </div>
+      <h3>SAP BTP Adoption Framework</h3>
+      <p>Grow your SAP BTP adoption confidently with the help of a maturity journey based on missions, and assessments.</p>
+      <div class="ebtns"><a class="ebtn" href="https://discovery-center.cloud.sap/protected/index.html#/adoptionFramework" target="_blank">Adoption Content</a><a class="ebtn g" href="https://discovery-center.cloud.sap/protected/index.html#/adoptionFramework" target="_blank">Maturity Assessment</a></div>
+    </div>
+
+  </div>
+
+  <div class="wsh">
+    <h2>My Workspace</h2>
+    <div><button class="wsbtn">Open Control Center</button><button class="wsbtn">Customize Your Space</button></div>
+  </div>
+  <div class="wgrid">
+    <div class="wcard">
+      <div class="wch"><img src="./dc_files/images/missionTypeImages/general_missionsRocket.svg"><span class="wch-t">My Started Missions</span><span class="wch-c">6 of 128</span></div>
+      <div class="wi"><span class="wi-l">SAP Integration Suite Workshop with Acciona 2026</span><span class="wi-v">0%</span></div>
+      <div class="wi"><span class="wi-l">Data Exchange to Connect SAP ERP with SAP Advanced Event Mesh</span><span class="wi-v">0%</span></div>
+      <div class="wi"><span class="wi-l">Effortless Message Delivery Using Google PubSub Adapter</span><span class="wi-v">0%</span></div>
+      <div class="wi"><span class="wi-l">SAP Integration Suite Workshop May 2026 &ndash; Bellevue</span><span class="wi-v">87%</span></div>
+      <div class="wi"><span class="wi-l">Process and approve your invoices with SAP Build Process Automation</span><span class="wi-v">0%</span></div>
+      <div class="wi"><span class="wi-l">Validate HR Data Ongoing</span><span class="wi-v">0%</span></div>
+      <div class="wft"><a href="https://discovery-center.cloud.sap/protected/index.html#/missions" target="_blank">Show All</a></div>
+    </div>
+    <div class="wcard">
+      <div class="wch"><span class="wch-t">My SAP BTP Service Estimates</span><span class="wch-c">6 of 13</span></div>
+      <div class="wi"><span class="wi-l">API Managed Integration</span><span class="wi-v">4635 EUR / MONTH</span></div>
+      <div class="wi"><span class="wi-l">Local Estimate</span><span class="wi-v">0 EUR / MONTH</span></div>
+      <div class="wi"><span class="wi-l">Estimate Name</span><span class="wi-v">5000 EUR / MONTH</span></div>
+      <div class="wi"><span class="wi-l">Get Started with SAP BTP Enterprise Account</span><span class="wi-v">2291.33 EUR / MONTH</span></div>
+      <div class="wi"><span class="wi-l">Develop a Full-Stack CAP Application</span><span class="wi-v">252.95 EUR / MONTH</span></div>
+      <div class="wi"><span class="wi-l">ITK Lite &ndash; BTP App Solution PostGres</span><span class="wi-v">834 EUR / MONTH</span></div>
+      <div class="wft"><a href="#">Show All</a></div>
+    </div>
+    <div class="wcard">
+      <div class="wch"><span class="wch-t">My Queries</span><span class="wch-c">2 of 2</span></div>
+      <div class="wi"><span class="wi-l">Test if I can start the mission</span><span class="wi-v">Replies (7)</span></div>
+      <div class="wi"><span class="wi-l">[Query] How can I create a Partner mission in Discovery Center?</span><span class="wi-v">Replies (1)</span></div>
+      <div class="wft"><a href="#">Show All</a></div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+
+  // ── KG: Solar system with real relationships ──────────────────────────
+  var cvs=document.getElementById('v6kg');
+  var hero=document.getElementById('hero');
+  var cx=cvs.getContext('2d');
+  var raf=null,na=[],la=[];
+  var GRAPH={categories:[],missions:[],services:[],links:[]};
+
+  function rsz(){
+    var d=window.devicePixelRatio||1,W=hero.offsetWidth,H=hero.offsetHeight;
+    cvs.width=Math.round(W*d);cvs.height=Math.round(H*d);
+    cvs.style.width=W+'px';cvs.style.height=H+'px';
+    cx.setTransform(d,0,0,d,0,0);cvs._W=W;cvs._H=H;
+  }
+  rsz();window.addEventListener('resize',function(){rsz();if(na.length)go();});
+
+  // Load real relationship graph
+  fetch('./dc_files/kg_graph.json').then(function(r){return r.json();}).then(function(g){
+    GRAPH=g;
+    buildReal();
+    cvs.style.opacity='.75';
+    go();
+  }).catch(function(){
+    cvs.style.opacity='.75';
+    go();
+  });
+
+  function nById(id){return na.find(function(n){return n.id===id;});}
+
+  function nodeUrl(n){
+    if(n.type==='mission'){
+      var num=n.id.replace('mis_UC','').replace(/^0+/,'');
+      return 'https://discovery-center.cloud.sap/missiondetail/'+num;
+    }
+    if(n.type==='service'){
+      var slug=n.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+      return 'https://discovery-center.cloud.sap/serviceCatalog/'+slug;
+    }
+    // category → mission list
+    return 'https://discovery-center.cloud.sap/protected/index.html#/missions';
+  }
+  function buildReal(){
+    var W=cvs._W,H=cvs._H;
+    // Preserve existing positions (e.g. when returning from search mode)
+    var oldPos={};
+    na.forEach(function(n){oldPos[n.id]=n;});
+
+    na=[];la=[];
+    var cats=GRAPH.categories;
+    var nc=cats.length||1;
+    cats.forEach(function(cat,ci){
+      var existing=oldPos[cat.id];
+      var tx=W/2+(ci-(nc-1)/2)*W*0.22, ty=H*0.5;
+      na.push({id:cat.id,
+        x:existing?existing.x:tx, y:existing?existing.y:ty,
+        r:20,color:'#8899aa',type:'category',label:cat.label,
+        fixed:false,hl:false,glow:existing?existing.glow:0,
+        hx:tx,hy:ty,os:0.0006+ci*0.0002,oa:existing?existing.oa:ci*2.1});
+    });
+    var catNi={};
+    na.forEach(function(n,i){if(n.type==='category')catNi[n.id]=i;});
+    var missByCat={};
+    GRAPH.links.forEach(function(l){
+      if(l.rel==='category'){if(!missByCat[l.s])missByCat[l.s]=[];missByCat[l.s].push(l.t);}
+    });
+    Object.keys(missByCat).forEach(function(cid){
+      var ci=catNi[cid];if(ci===undefined)return;
+      var sun=na[ci];
+      missByCat[cid].forEach(function(mid,mi){
+        var m=GRAPH.missions.find(function(x){return x.id===mid;});
+        if(!m)return;
+        var existing=oldPos[mid];
+        var ang=(mi/missByCat[cid].length)*Math.PI*2-Math.PI/2;
+        var orR=52+mi*7;
+        na.push({id:mid,
+          x:existing?existing.x:sun.x+Math.cos(ang)*orR,
+          y:existing?existing.y:sun.y+Math.sin(ang)*orR*0.6,
+          r:9,color:'#f0c040',type:'mission',label:m.label,
+          hl:false,glow:existing?existing.glow:0,
+          oci:ci,orR:orR,oa:existing?existing.oa:ang,os:0.004+mi*.0008});
+        la.push({s:cid,t:mid,rel:'category'});
+      });
+    });
+    var missNi={};
+    na.forEach(function(n,i){if(n.type==='mission')missNi[n.id]=i;});
+    var svcByMiss={};
+    GRAPH.links.forEach(function(l){
+      if(l.rel==='service'){if(!svcByMiss[l.s])svcByMiss[l.s]=[];svcByMiss[l.s].push(l.t);}
+    });
+    Object.keys(svcByMiss).forEach(function(mid){
+      var mi=missNi[mid];if(mi===undefined)return;
+      var miss=na[mi];
+      svcByMiss[mid].slice(0,2).forEach(function(sid,si){
+        var s=GRAPH.services.find(function(x){return x.id===sid;});
+        if(!s)return;
+        var existing=oldPos[sid];
+        var ang=si*Math.PI+si*0.3;
+        var orR=20+si*5;
+        na.push({id:sid,
+          x:existing?existing.x:miss.x+Math.cos(ang)*orR,
+          y:existing?existing.y:miss.y+Math.sin(ang)*orR*0.7,
+          r:5,color:'#38bdf8',type:'service',label:s.label,
+          hl:false,glow:existing?existing.glow:0,
+          oci:mi,orR:orR,oa:existing?existing.oa:ang,os:0.009+si*.003});
+        la.push({s:mid,t:sid,rel:'service'});
+      });
+    });
+  }
+
+  function buildSearch(res){
+    var W=cvs._W,H=cvs._H;
+    // Build map of existing positions to preserve them
+    var oldPos={};
+    na.forEach(function(n){oldPos[n.label]=n;});
+
+    var newNa=[],newLa=[];
+    var cats=res.filter(function(r){return r.type==='category';});
+    var miss=res.filter(function(r){return r.type==='mission';});
+    var svcs=res.filter(function(r){return r.type==='service';});
+    var nc=Math.max(cats.length,1);
+    cats.forEach(function(c,i){
+      var existing=oldPos[c.label];
+      var tx=W/2+(i-(nc-1)/2)*W*0.22, ty=H*0.5;
+      newNa.push({id:'c'+i,
+        x:existing?existing.x:tx, y:existing?existing.y:ty,
+        r:18,color:'#8899aa',type:'category',label:c.label,
+        fixed:false,hl:false,glow:existing?existing.glow:0,
+        hx:tx,hy:ty,os:0.0006+i*0.0002,oa:existing?existing.oa:i*2.1});
+    });
+    miss.forEach(function(m,i){
+      var existing=oldPos[m.label];
+      var si=newNa[i%Math.max(cats.length,1)];
+      var ang=(i/Math.max(miss.length,1))*Math.PI*2;
+      var orR=58;
+      var tx=si?(si.x+Math.cos(ang)*orR):W*0.5;
+      var ty=si?(si.y+Math.sin(ang)*orR*0.55):H*0.5;
+      newNa.push({id:'m'+i,
+        x:existing?existing.x:tx, y:existing?existing.y:ty,
+        r:9,color:'#f0c040',type:'mission',label:m.label,
+        hl:false,glow:existing?existing.glow:0,
+        oci:si?newNa.indexOf(si):null,orR:orR,
+        oa:existing?existing.oa:ang,os:0.003+i*.001});
+      if(si)newLa.push({s:'c'+(i%cats.length),t:'m'+i,rel:'category'});
+    });
+    svcs.forEach(function(s,i){
+      var existing=oldPos[s.label];
+      var mi=cats.length+i%Math.max(miss.length,1);
+      var pm=newNa[mi];
+      var ang=i*1.4; var orR=22;
+      var tx=pm?(pm.x+Math.cos(ang)*orR):W*0.5;
+      var ty=pm?(pm.y+Math.sin(ang)*orR*0.7):H*0.5;
+      newNa.push({id:'s'+i,
+        x:existing?existing.x:tx, y:existing?existing.y:ty,
+        r:5,color:'#38bdf8',type:'service',label:s.label,
+        hl:false,glow:existing?existing.glow:0,
+        oci:pm?mi:null,orR:orR,
+        oa:existing?existing.oa:ang,os:0.01+i*.002});
+      if(pm)newLa.push({s:'m'+(i%Math.max(miss.length,1)),t:'s'+i,rel:'service'});
+    });
+    na=newNa; la=newLa;
+  }
+
+  var _t=0;
+  var _rkt={oa:0,os:0.007};
+  function tick(){
+    var W=cvs._W,H=cvs._H;
+    var PAD=30;
+    _t+=0.016;
+    _rkt.oa+=_rkt.os;
+    na.forEach(function(n){
+      // Glow update for all nodes
+      n.glow=n.hl?Math.min(n.glow+.12,1):Math.max(n.glow-.06,0);
+      if(n.fixed)return;
+      // Categories float gently around their home position (hx/hy)
+      if(n.type==='category'){
+        var hx=n.hx||W*0.5, hy=n.hy||H*0.5;
+        n.x=hx+Math.sin(_t*n.os*0.4+n.oa)*W*0.04;
+        n.y=hy+Math.cos(_t*n.os*0.3+n.oa*1.3)*H*0.07;
+        n.x=Math.max(PAD,Math.min(W-PAD,n.x));
+        n.y=Math.max(PAD,Math.min(H-PAD,n.y));
+        return;
+      }
+      if(n.oci!==null&&n.oci!==undefined){
+        var p=na[n.oci];
+        if(p){n.oa+=n.os;n.x=p.x+Math.cos(n.oa)*n.orR;n.y=p.y+Math.sin(n.oa)*n.orR*0.6;}
+      }
+    });
+  }
+
+  function drawRocket(x,y,angle){
+    cx.save();
+    cx.translate(x,y);
+    cx.rotate(angle+Math.PI/2);
+    // flame
+    var fl=cx.createLinearGradient(0,7,0,15);
+    fl.addColorStop(0,'rgba(249,115,22,0.95)');
+    fl.addColorStop(0.5,'rgba(250,204,21,0.7)');
+    fl.addColorStop(1,'rgba(249,115,22,0)');
+    cx.beginPath();cx.moveTo(-3,7);cx.lineTo(0,15+Math.sin(_t*8)*2);cx.lineTo(3,7);cx.closePath();
+    cx.fillStyle=fl;cx.fill();
+    // body
+    var bg=cx.createLinearGradient(-4,0,4,0);
+    bg.addColorStop(0,'#c8d8e8');bg.addColorStop(0.5,'#ffffff');bg.addColorStop(1,'#8899aa');
+    cx.beginPath();cx.moveTo(0,-10);
+    cx.bezierCurveTo(4,-7,4,5,3,7);cx.lineTo(-3,7);cx.bezierCurveTo(-4,5,-4,-7,0,-10);
+    cx.fillStyle=bg;cx.fill();
+    // nose
+    var ng=cx.createLinearGradient(-3,-10,3,-4);
+    ng.addColorStop(0,'#1d4ed8');ng.addColorStop(1,'#3b82f6');
+    cx.beginPath();cx.moveTo(0,-10);
+    cx.bezierCurveTo(3,-8,3.5,-4,3,7);cx.bezierCurveTo(2,2,-2,2,-3,7);cx.bezierCurveTo(-3.5,-4,-3,-8,0,-10);
+    cx.fillStyle=ng;cx.fill();
+    // window
+    cx.beginPath();cx.arc(0,-1,2.2,0,Math.PI*2);
+    cx.fillStyle='rgba(147,210,255,0.85)';cx.fill();
+    cx.strokeStyle='rgba(255,255,255,0.5)';cx.lineWidth=0.5;cx.stroke();
+    // fins
+    cx.fillStyle='#1d4ed8';
+    cx.beginPath();cx.moveTo(3,4);cx.lineTo(7,9);cx.lineTo(3,7);cx.closePath();cx.fill();
+    cx.beginPath();cx.moveTo(-3,4);cx.lineTo(-7,9);cx.lineTo(-3,7);cx.closePath();cx.fill();
+    cx.restore();
+  }
+
+  function drw(){
+    var W=cvs._W,H=cvs._H;cx.clearRect(0,0,W,H);
+    // Orbit rings
+    var dr={};
+    na.forEach(function(n){
+      if(n.oci===null||n.oci===undefined)return;
+      var key=n.oci+'_'+Math.round(n.orR);
+      if(dr[key])return;dr[key]=true;
+      var p=na[n.oci];if(!p)return;
+      cx.beginPath();cx.ellipse(p.x,p.y,n.orR,n.orR*0.6,0,0,Math.PI*2);
+      cx.strokeStyle='rgba(255,255,255,.05)';cx.lineWidth=.5;cx.stroke();
+    });
+    // Links
+    la.forEach(function(l){
+      var s=nById(l.s),t=nById(l.t);if(!s||!t)return;
+      var hl=s.hl||t.hl;
+      // Gradient line from source color to target color
+      var grad=cx.createLinearGradient(s.x,s.y,t.x,t.y);
+      if(l.rel==='category'){
+        grad.addColorStop(0,'rgba(136,153,170,'+(hl?.7:.35)+')');
+        grad.addColorStop(1,'rgba(240,192,64,'+(hl?.7:.35)+')');
+      } else {
+        grad.addColorStop(0,'rgba(240,192,64,'+(hl?.6:.28)+')');
+        grad.addColorStop(1,'rgba(56,189,248,'+(hl?.6:.28)+')');
+      }
+      cx.beginPath();cx.moveTo(s.x,s.y);cx.lineTo(t.x,t.y);
+      cx.strokeStyle=grad;
+      cx.lineWidth=hl?1.5:.8;cx.stroke();
+      // Arrow tip at target
+      var dx=t.x-s.x,dy=t.y-s.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+      var ux=dx/len,uy=dy/len;
+      var ax=t.x-ux*(t.r||8),ay=t.y-uy*(t.r||8);
+      cx.beginPath();
+      cx.moveTo(ax,ay);
+      cx.lineTo(ax-ux*5+uy*3,ay-uy*5-ux*3);
+      cx.lineTo(ax-ux*5-uy*3,ay-uy*5+ux*3);
+      cx.closePath();
+      cx.fillStyle=l.rel==='category'?'rgba(240,192,64,'+(hl?.7:.3)+')':'rgba(56,189,248,'+(hl?.7:.3)+')';
+      cx.fill();
+    });
+    // Nodes
+    na.forEach(function(n){
+      var g=n.glow;
+      if(n.type==='category'){
+        // Gray sun with corona rays
+        if(g>0){cx.beginPath();cx.arc(n.x,n.y,n.r+8+g*8,0,6.28);cx.fillStyle='rgba(180,200,220,'+(0.07+g*.1)+')';cx.fill();}
+        var gr=cx.createRadialGradient(n.x-n.r*.3,n.y-n.r*.3,1,n.x,n.y,n.r);
+        gr.addColorStop(0,'#e8eef4');gr.addColorStop(.5,'#8899aa');gr.addColorStop(1,'#445566');
+        cx.beginPath();cx.arc(n.x,n.y,n.r,0,6.28);cx.fillStyle=gr;cx.fill();
+        for(var ci=0;ci<8;ci++){var ca=ci/8*Math.PI*2;
+          cx.beginPath();cx.moveTo(n.x+Math.cos(ca)*(n.r+2),n.y+Math.sin(ca)*(n.r+2));
+          cx.lineTo(n.x+Math.cos(ca)*(n.r+7),n.y+Math.sin(ca)*(n.r+7));
+          cx.strokeStyle='rgba(200,215,230,.35)';cx.lineWidth=.8;cx.stroke();}
+        cx.fillStyle=g>.1?'rgba(255,255,255,.95)':'rgba(255,255,255,.25)';
+        cx.font=(g>.1?'bold ':'')+(g>.1?13:7)+'px Inter,Arial,sans-serif';cx.textAlign='center';
+        cx.fillText(n.label,n.x,n.y+n.r+11);
+      } else if(n.type==='mission'){
+        // Yellow planet with ring
+        var rp=n.r*(1+g*.35);
+        if(g>0){cx.beginPath();cx.arc(n.x,n.y,rp+5,0,6.28);cx.fillStyle='rgba(240,192,64,'+(g*.15)+')';cx.fill();}
+        var grp=cx.createRadialGradient(n.x-rp*.35,n.y-rp*.35,rp*.05,n.x,n.y,rp);
+        grp.addColorStop(0,'#fef9c3');grp.addColorStop(.5,'#f0c040');grp.addColorStop(1,'#b45309');
+        cx.beginPath();cx.arc(n.x,n.y,rp,0,6.28);cx.fillStyle=grp;cx.fill();
+        cx.save();cx.translate(n.x,n.y);cx.scale(1,.28);
+        cx.beginPath();cx.arc(0,0,rp*1.55,0,Math.PI*2);
+        cx.strokeStyle='rgba(240,192,64,.3)';cx.lineWidth=2.5;cx.stroke();cx.restore();
+        cx.fillStyle=g>.1?'rgba(255,255,255,.95)':'rgba(255,255,255,.25)';
+        cx.font=(g>.1?'bold ':'')+(g>.1?13:7.5)+'px Inter,Arial,sans-serif';cx.textAlign='center';
+        cx.fillText(n.label,n.x,n.y+rp+12);
+      } else {
+        // Blue cube (service)
+        var sc=n.r*1.7*(1+g*.45);
+        if(g>0){cx.beginPath();cx.arc(n.x,n.y,sc*.75+3,0,6.28);cx.fillStyle='rgba(56,189,248,'+(g*.18)+')';cx.fill();}
+        var gr3=cx.createLinearGradient(n.x-sc/2,n.y-sc/2,n.x+sc/2,n.y+sc/2);
+        gr3.addColorStop(0,'#bae6fd');gr3.addColorStop(1,'#0369a1');
+        cx.fillStyle=gr3;
+        cx.beginPath();
+        if(cx.roundRect){cx.roundRect(n.x-sc/2,n.y-sc/2,sc,sc,sc*.15);}else{cx.rect(n.x-sc/2,n.y-sc/2,sc,sc);}
+        cx.fill();
+        if(g>.1){cx.strokeStyle='rgba(125,211,252,'+(g*.8)+')';cx.lineWidth=1.5;cx.stroke();}
+        cx.fillStyle=g>.1?'rgba(255,255,255,.95)':'rgba(255,255,255,.25)';
+        cx.font=(g>.1?'bold ':'')+(g>.1?12:6.5)+'px Inter,Arial,sans-serif';cx.textAlign='center';
+        if(g>.02||n.r>4)cx.fillText(n.label,n.x,n.y+sc*.5+9);
+      }
+    });
+    // Rocket orbiting the canvas center
+    var W=cvs._W,H=cvs._H;
+    var rx=W*0.5+Math.cos(_rkt.oa)*W*0.38;
+    var ry=H*0.5+Math.sin(_rkt.oa)*H*0.28;
+    var heading=_rkt.oa+Math.PI/2; // tangent = 90° ahead of orbit angle
+    drawRocket(rx,ry,heading);
+  }
+
+  function go(){if(raf)cancelAnimationFrame(raf);function loop(){tick();drw();raf=requestAnimationFrame(loop);}loop();}
+
+  // Canvas hover — set hl flag + pointer cursor on nearest node within 30px
+  cvs.addEventListener('mousemove',function(e){
+    var r=cvs.getBoundingClientRect();
+    var mx=e.clientX-r.left, my=e.clientY-r.top;
+    var hit=null,best=30;
+    na.forEach(function(n){
+      var dx=n.x-mx,dy=n.y-my,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<best){best=d;hit=n;}
+    });
+    na.forEach(function(n){n.hl=(hit&&n===hit);});
+    cvs.style.cursor=hit?'pointer':'default';
+  });
+  cvs.addEventListener('mouseleave',function(){na.forEach(function(n){n.hl=false;});cvs.style.cursor='default';});
+  cvs.addEventListener('click',function(e){
+    var r=cvs.getBoundingClientRect();
+    var mx=e.clientX-r.left,my=e.clientY-r.top;
+    var hit=null,best=30;
+    na.forEach(function(n){
+      var dx=n.x-mx,dy=n.y-my,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<best){best=d;hit=n;}
+    });
+    if(hit)window.open(nodeUrl(hit),'_blank');
+  });
+  function rkg(res){
+    if(res&&res.length){cvs.style.opacity='.8';buildSearch(res);}
+    else{cvs.style.opacity='.75';buildReal();}
+    go();
+  }
+
+  // ── Search data + typeahead ────────────────────────────────────────────
+  var SD={missions:[],categories:[],services:[]};
+  fetch('./dc_files/search_data.json').then(function(r){return r.json();}).then(function(d){SD=d;if(!na.length)rkg(null);});
+
+  var inp=document.getElementById('v6inp');
+  var drop=document.getElementById('v6drop');
+  var swrap=document.getElementById('swrap');
+  var TC={mission:'#f0c040',service:'#38bdf8',category:'#8899aa'};
+  var TL={mission:'Mission',service:'Service',category:'Category'};
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  function posDrop(){var r=inp.getBoundingClientRect();drop.style.left=r.left+'px';drop.style.top=r.bottom+'px';drop.style.width=r.width+'px';}
+  window.kgHL=function(lbl){na.forEach(function(n){n.hl=!!lbl&&!!n.label&&n.label.slice(0,lbl.length)===lbl;});};
+
+  var lq='';
+  setInterval(function(){
+    var q=(inp.value||'').trim();
+    if(q===lq)return;lq=q;
+    if(!q){drop.style.display='none';return;}
+    var ql=q.toLowerCase(),rm=[],rs=[],rc=[];
+    SD.missions.forEach(function(n){if(n.toLowerCase().includes(ql))rm.push({label:n,type:'mission',url:'https://discovery-center.cloud.sap/protected/index.html#/missions'});});
+    SD.services.forEach(function(n){if(n.toLowerCase().includes(ql))rs.push({label:n,type:'service',url:'https://discovery-center.cloud.sap/serviceCatalog'});});
+    SD.categories.forEach(function(n){if(n.toLowerCase().includes(ql))rc.push({label:n,type:'category',url:'https://discovery-center.cloud.sap/protected/index.html#/missions'});});
+    var res=rm.slice(0,3).concat(rs.slice(0,3)).concat(rc.slice(0,2)).concat(rm.slice(3,5)).concat(rs.slice(3,5)).slice(0,9);
+    rkg(rm.slice(0,8).concat(rs.slice(0,6)).concat(rc.slice(0,6)));
+    posDrop();
+    if(!res.length){drop.innerHTML='<div style="padding:12px 16px;color:#6a6d70;font-size:.8125rem">No results</div>';drop.style.display='block';return;}
+    var r2=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    drop.innerHTML=res.map(function(r){
+      var c=TC[r.type]||'#6a6d70',l=TL[r.type]||r.type;
+      var hl=esc(r.label).replace(r2,'<strong style="color:#32363a">$1</strong>');
+      var lbl=esc(r.label);
+      return '<a href="'+r.url+'" target="_blank" onmouseover="kgHL(\''+lbl+'\')" onmouseout="kgHL(null)">'
+        +'<span class="stag" style="background:'+c+'18;color:'+c+'">'+l+'</span>'
+        +'<span class="slbl">'+hl+'</span></a>';
+    }).join('');
+    drop.style.display='block';
+  },80);
+
+  window.addEventListener('scroll',function(){if(drop.style.display!=='none')posDrop();},true);
+  window.addEventListener('resize',function(){if(drop.style.display!=='none')posDrop();});
+  document.addEventListener('click',function(e){if(!swrap.contains(e.target)&&!drop.contains(e.target))drop.style.display='none';});
+  inp.addEventListener('keydown',function(e){if(e.key==='Escape'){inp.value='';drop.style.display='none';}});
+  document.querySelectorAll('.ntab').forEach(function(t){
+    t.addEventListener('click',function(){document.querySelectorAll('.ntab').forEach(function(x){x.classList.remove('active');});t.classList.add('active');});
+  });
+})();
+</script>
+</body>
+</html>
