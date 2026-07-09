@@ -235,16 +235,25 @@ body{font-family:"72","72full",Inter,Arial,sans-serif;background:var(--bg);color
   function nById(id){return na.find(function(n){return n.id===id;});}
 
   function nodeUrl(n){
+    var BASE='https://discovery-center.cloud.sap';
     if(n.type==='mission'){
-      var num=n.id.replace('mis_UC','').replace(/^0+/,'');
-      return 'https://discovery-center.cloud.sap/missiondetail/'+num;
+      // Real graph nodes: id = mis_UC00003530 → missiondetail/3530
+      if(n.id&&n.id.indexOf('mis_UC')===0){
+        var num=n.id.replace('mis_UC','').replace(/^0+/,'');
+        return BASE+'/missiondetail/'+num+'/';
+      }
+      // Search nodes: no numeric ID, link to missions catalog with label as search
+      var q=encodeURIComponent(n.label);
+      return BASE+'/protected/index.html#/missions?search='+q;
     }
     if(n.type==='service'){
+      // slug from label: "SAP HANA Cloud" → "sap-hana-cloud"
       var slug=n.label.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-      return 'https://discovery-center.cloud.sap/serviceCatalog/'+slug;
+      return BASE+'/serviceCatalog/'+slug;
     }
-    // category → mission list
-    return 'https://discovery-center.cloud.sap/protected/index.html#/missions';
+    // category → missions catalog
+    return BASE+'/protected/index.html#/missions';
+  }
   }
   function buildReal(){
     var W=cvs._W,H=cvs._H;
